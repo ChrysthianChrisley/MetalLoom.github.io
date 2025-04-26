@@ -542,4 +542,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const homeLink = document.getElementById('home-link');
+    const searchInput = document.getElementById('search-input');
+    const autocompleteList = document.getElementById('autocomplete-list');
+    const artistInfo = document.getElementById('artist-info');
+    const bandMembers = document.getElementById('band-members');
+    const initialMessage = document.getElementById('initial-message');
+    const noResults = document.getElementById('no-results');
+    const networkVisualization = d3.select("#network-visualization");
+
+    homeLink.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent page reload
+        // Clear search input and autocomplete
+        searchInput.value = '';
+        autocompleteList.classList.add('hidden');
+        autocompleteList.innerHTML = '';
+        // Hide artist info, band members, and no results
+        artistInfo.classList.add('hidden');
+        bandMembers.classList.add('hidden');
+        noResults.classList.add('hidden');
+        // Show initial message
+        initialMessage.classList.remove('hidden');
+        // Clear the graph
+        networkVisualization.selectAll("*").remove();
+        console.log('Home link clicked: Interface reset');
+    });
+});
+
 document.addEventListener('DOMContentLoaded', initializeVisualization);

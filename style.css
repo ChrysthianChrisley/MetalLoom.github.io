@@ -746,3 +746,8 @@ footer {
         font-size: 7px;
     }
 }
+
+#home-link {
+    display: inline-block;
+    color: #ffffff;
+}
