@@ -1,78 +1,70 @@
 // Structure to store artist data and their connections
 let artistsData = [];
 let currentNetwork = null;
-let allArtistNames = []; // Array to store all artist names
+let allArtistNames = [];
+let allBandNames = [];
+let dataLoaded = false; // Flag para indicar carregamento de dados
 
-// Function to load data from the artists.txt file
 async function loadArtistsData() {
     try {
-        const response = await fetch('artists.txt');
+        const response = await fetch('artists.json');
         if (!response.ok) {
             throw new Error(`Error loading file: ${response.status}`);
         }
-        const dataText = await response.text();
-        artistsData = parseArtistsData(dataText);
-        allArtistNames = artistsData.map(artist => artist.name).sort(); // Load and sort names
+        artistsData = await response.json();
+        artistsData = parseArtistsData(artistsData);
+        allArtistNames = artistsData.map(artist => artist.name).sort();
+        allBandNames = [...new Set(artistsData.flatMap(artist => artist.bands))].sort();
+        dataLoaded = true; // Marca dados como carregados
+        console.log('Loaded artists:', allArtistNames, 'bands:', allBandNames); // Depuração
+        return artistsData;
     } catch (error) {
         console.error("Could not load artist data:", error);
-        // Here you can add logic to handle the error,
-        // such as displaying a message to the user.
+        const noResults = document.getElementById('no-results');
+        if (noResults) {
+            noResults.textContent = "Failed to load artist data. Please check the console for details.";
+            noResults.classList.remove('hidden');
+        }
+        return [];
     }
 }
 
-// Function to parse the data from the text file
-function parseArtistsData(dataText) {
-    const lines = dataText.trim().split(';').filter(line => line.trim() !== '');
+function parseArtistsData(data) {
+    if (!Array.isArray(data)) {
+        console.error("Invalid artists data format");
+        return [];
+    }
 
     const artists = [];
-    const bandsMap = new Map(); // Maps bands to the artists who belong to them
+    const bandsMap = new Map();
 
-    lines.forEach(line => {
-        const cleanLine = line.trim();
-        if (!cleanLine) return;
+    data.forEach(artist => {
+        if (!artist.name || !Array.isArray(artist.bands)) {
+            console.warn(`Skipping invalid artist: ${JSON.stringify(artist)}`);
+            return;
+        }
+        artists.push({ name: artist.name, bands: artist.bands });
 
-        const artistParts = cleanLine.split('-');
-        if (artistParts.length < 2) return;
-
-        const artistName = artistParts[0].trim();
-        const bandsText = artistParts[1].trim();
-        const bands = bandsText.split(',').map(band => band.trim());
-
-        // Add the artist to the artists array
-        const artist = {
-            name: artistName,
-            bands: bands
-        };
-        artists.push(artist);
-
-        // Map each band to the artists that are part of it
-        bands.forEach(band => {
+        artist.bands.forEach(band => {
             if (!bandsMap.has(band)) {
                 bandsMap.set(band, []);
             }
-            bandsMap.get(band).push(artistName);
+            bandsMap.get(band).push(artist.name);
         });
     });
 
-    // Add connections based on common bands
     artists.forEach(artist => {
         artist.connections = [];
-
-        // For each band of the artist
         artist.bands.forEach(band => {
-            // Get all other artists in this band
             const bandmates = bandsMap.get(band).filter(name => name !== artist.name);
-
-            // Add non-duplicate connections
             bandmates.forEach(bandmate => {
                 if (!artist.connections.some(conn => conn.name === bandmate)) {
                     const commonBands = artists
                         .find(a => a.name === bandmate)?.bands
                         .filter(b => artist.bands.includes(b)) || [];
-
                     artist.connections.push({
                         name: bandmate,
-                        commonBands: commonBands
+                        commonBands
                     });
                 }
             });
@@ -82,46 +74,88 @@ function parseArtistsData(dataText) {
     return artists;
 }
 
-// Function to initialize the visualization
 async function initializeVisualization() {
-    // Load and process data from the file
     await loadArtistsData();
 
-    // Set up event listeners
     const searchInput = document.getElementById('search-input');
     const autocompleteList = document.getElementById('autocomplete-list');
     const searchButton = document.getElementById('search-button');
 
+    if (!searchInput || !autocompleteList || !searchButton) {
+        console.error("Required DOM elements are missing");
+        return;
+    }
+
     searchInput.addEventListener('input', () => {
-        const query = searchInput.value.trim();
-        if (query) {
+        const query = searchInput.value.trim().slice(0, 100);
+        if (query && dataLoaded) {
             updateAutocompleteList(query, autocompleteList);
         } else {
             autocompleteList.classList.add('hidden');
             autocompleteList.innerHTML = '';
+            if (!dataLoaded) {
+                console.warn("Data not loaded yet, cannot show autocomplete");
+            }
         }
     });
 
     autocompleteList.addEventListener('click', (event) => {
         if (event.target.tagName === 'LI') {
-            searchInput.value = event.target.textContent;
-            autocompleteList.classList.add('hidden');
-            searchArtist(event.target.textContent);
+            const type = event.target.dataset.type;
+            const name = event.target.dataset.name;
+            console.log('Autocomplete clicked:', { type, name }); // Depuração
+            if (type && name && dataLoaded) {
+                searchInput.value = name;
+                autocompleteList.classList.add('hidden');
+                search(name, type);
+            } else {
+                console.error('Invalid autocomplete item or data not loaded:', { type, name, dataLoaded });
+            }
         }
     });
 
     searchButton.addEventListener('click', () => {
         const query = searchInput.value.trim();
-        if (query) {
-            searchArtist(query);
+        if (query && dataLoaded) {
+            const artistResults = artistsData.filter(artist =>
+                artist.name.toLowerCase() === query.toLowerCase()
+            );
+            const bandMatch = allBandNames.find(band =>
+                band.toLowerCase() === query.toLowerCase()
+            );
+            console.log('Search button:', { query, artistResults, bandMatch }); // Depuração
+            if (artistResults.length > 0) {
+                search(query, 'artist');
+            } else if (bandMatch) {
+                search(bandMatch, 'band');
+            } else {
+                showNoResults();
+            }
+        } else {
+            console.warn("Search button clicked but data not loaded or query empty:", { query, dataLoaded });
         }
     });
 
     searchInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             const query = searchInput.value.trim();
-            if (query) {
-                searchArtist(query);
+            if (query && dataLoaded) {
+                const artistResults = artistsData.filter(artist =>
+                    artist.name.toLowerCase() === query.toLowerCase()
+                );
+                const bandMatch = allBandNames.find(band =>
+                    band.toLowerCase() === query.toLowerCase()
+                );
+                console.log('Enter key:', { query, artistResults, bandMatch }); // Depuração
+                if (artistResults.length > 0) {
+                    search(query, 'artist');
+                } else if (bandMatch) {
+                    search(bandMatch, 'band');
+                } else {
+                    showNoResults();
+                }
+            } else {
+                console.warn("Enter key pressed but data not loaded or query empty:", { query, dataLoaded });
             }
         }
     });
@@ -131,12 +165,23 @@ function updateAutocompleteList(query, listElement) {
     const filteredArtists = allArtistNames.filter(name =>
         name.toLowerCase().startsWith(query.toLowerCase())
     );
+    const filteredBands = allBandNames.filter(name =>
+        name.toLowerCase().startsWith(query.toLowerCase())
+    );
 
     listElement.innerHTML = '';
-    if (filteredArtists.length > 0) {
-        filteredArtists.forEach(artistName => {
+    const combinedResults = [
+        ...filteredArtists.map(name => ({ type: 'artist', name })),
+        ...filteredBands.map(name => ({ type: 'band', name }))
+    ];
+
+    console.log('Autocomplete results:', combinedResults); // Depuração
+    if (combinedResults.length > 0) {
+        combinedResults.forEach(item => {
             const listItem = document.createElement('li');
-            listItem.textContent = artistName;
+            listItem.textContent = item.type === 'band' ? `[Band] ${item.name}` : item.name;
+            listItem.setAttribute('data-type', item.type);
+            listItem.setAttribute('data-name', item.name);
             listElement.appendChild(listItem);
         });
         listElement.classList.remove('hidden');
@@ -145,28 +190,35 @@ function updateAutocompleteList(query, listElement) {
     }
 }
 
-// Function to search for an artist
-function searchArtist(query) {
-    // Case-insensitive and partial search
-    const results = artistsData.filter(artist =>
-        artist.name.toLowerCase() === query.toLowerCase()
-    );
-
-    if (results.length > 0) {
-        // Display the first search result (should be unique with exact match)
-        displayArtistNetwork(results[0]);
+function search(query, type) {
+    console.log('Search called:', { query, type, dataLoaded }); // Depuração
+    if (!dataLoaded) {
+        console.error("Cannot search: data not loaded yet");
+        showNoResults();
+        return;
+    }
+    if (type === 'artist') {
+        const results = artistsData.filter(artist =>
+            artist.name.toLowerCase() === query.toLowerCase()
+        );
+        if (results.length > 0) {
+            displayArtistNetwork(results[0]);
+        } else {
+            showNoResults();
+        }
+    } else if (type === 'band') {
+        displayBandMembers(query);
     } else {
         showNoResults();
     }
 }
 
-// Function to display the network of connections for an artist
 function displayArtistNetwork(artist) {
-    // Hide initial and "no results" messages
+    console.log('Displaying artist network for:', artist.name); // Depuração
     document.getElementById('initial-message').classList.add('hidden');
     document.getElementById('no-results').classList.add('hidden');
+    document.getElementById('band-members').classList.add('hidden');
 
-    // Display artist information
     const artistInfo = document.getElementById('artist-info');
     artistInfo.classList.remove('hidden');
 
@@ -174,7 +226,6 @@ function displayArtistNetwork(artist) {
 
     const artistBands = document.getElementById('artist-bands');
     artistBands.innerHTML = '<strong>Bands:</strong> ';
-    // Criar spans clicáveis para cada banda
     artist.bands.forEach((band, index) => {
         const bandSpan = document.createElement('span');
         bandSpan.textContent = band + (index < artist.bands.length - 1 ? ', ' : '');
@@ -201,59 +252,33 @@ function displayArtistNetwork(artist) {
         connectionsList.appendChild(li);
     });
 
-    // Reset band members section
-    document.getElementById('band-members').classList.add('hidden');
     document.getElementById('band-members-list').innerHTML = '';
 
-    // Create the network visualization
     createNetworkVisualization(artist);
 }
 
-// Function to generate colors for the bands
 function getBandColors() {
-    // List of colors for different bands (light and modern)
     return [
-        "#a7c957", // Light Green
-        "#f2e9e4", // Off-White
-        "#ffc857", // Light Yellow
-        "#8ac926", // Bright Green
-        "#e9c46a", // Mustard Yellow
-        "#00adb5", // Teal
-        "#9a8c98", // Dusty Purple
-        "#f94144", // Coral
-        "#577590", // Slate Blue
-        "#43aa8b", // Sea Green
-        "#90be6d", // Lime Green
-        "#f8961e"  // Orange
+        "#a7c957", "#f2e9e4", "#ffc857", "#8ac926", "#e9c46a",
+        "#00adb5", "#9a8c98", "#f94144", "#577590", "#43aa8b",
+        "#90be6d", "#f8961e"
     ];
 }
 
-// Function to create the network visualization using D3.js
 function createNetworkVisualization(centralArtist) {
-    // Clear the previous visualization if it exists
+    console.log('Creating visualization for:', centralArtist.name); // Depuração
     d3.select("#network-visualization").selectAll("*").remove();
 
     const svg = d3.select("#network-visualization");
     const width = svg.node().getBoundingClientRect().width;
     const height = svg.node().getBoundingClientRect().height;
 
-    // Create the data for the graph
-    const nodes = [
-        { id: centralArtist.name, group: 1, artist: centralArtist }
-    ];
-
+    const nodes = [{ id: centralArtist.name, group: 1, artist: centralArtist }];
     const links = [];
 
-    // Add connections as nodes and links
     centralArtist.connections.forEach(connection => {
         const connectedArtist = artistsData.find(a => a.name === connection.name);
-
-        nodes.push({
-            id: connection.name,
-            group: 2,
-            artist: connectedArtist
-        });
-
+        nodes.push({ id: connection.name, group: 2, artist: connectedArtist });
         links.push({
             source: centralArtist.name,
             target: connection.name,
@@ -262,11 +287,8 @@ function createNetworkVisualization(centralArtist) {
         });
     });
 
-    // Collecting all unique bands to color the connections
     const allBands = new Set();
-    links.forEach(link => {
-        link.commonBands.forEach(band => allBands.add(band));
-    });
+    links.forEach(link => link.commonBands.forEach(band => allBands.add(band)));
     const bandsList = Array.from(allBands);
 
     const bandColors = getBandColors();
@@ -275,14 +297,9 @@ function createNetworkVisualization(centralArtist) {
         bandColorMap[band] = bandColors[i % bandColors.length];
     });
 
-    // Define gradients for links with multiple common bands
     const defs = svg.append("defs");
-
     links.forEach((link, i) => {
-        // Create a unique ID for the gradient
         const gradientId = `link-gradient-${i}`;
-
-        // If there is more than one common band, create a gradient
         if (link.commonBands.length > 1) {
             const gradient = defs.append("linearGradient")
                 .attr("id", gradientId)
@@ -291,26 +308,19 @@ function createNetworkVisualization(centralArtist) {
                 .attr("y1", 0)
                 .attr("x2", "100%")
                 .attr("y2", 0);
-
-            // Add stops for each band
             link.commonBands.forEach((band, j) => {
                 gradient.append("stop")
                     .attr("offset", `${j * (100 / (link.commonBands.length - 1))}%`)
                     .attr("stop-color", bandColorMap[band]);
             });
-
-            // Specify that this link uses the gradient
             link.gradient = gradientId;
         } else if (link.commonBands.length === 1) {
-            // If there is only one band, use its color directly
             link.color = bandColorMap[link.commonBands[0]];
         } else {
-            // No common bands (should not happen)
-            link.color = "#ddd"; // Light grey
+            link.color = "#ddd";
         }
     });
 
-    // Add color legend
     const legendSize = 12;
     const legendSpacing = 4;
     const legendX = 20;
@@ -326,8 +336,8 @@ function createNetworkVisualization(centralArtist) {
         .append("g")
         .attr("class", "legend-item")
         .attr("transform", (d, i) => `translate(0, ${i * (legendSize + legendSpacing)})`)
-        .style("cursor", "pointer") // Tornar o item clicável
-        .on("click", (event, d) => displayBandMembers(d)); // Adicionar evento de clique
+        .style("cursor", "pointer")
+        .on("click", (event, d) => displayBandMembers(d));
 
     legendItems.append("rect")
         .attr("width", legendSize)
@@ -341,16 +351,12 @@ function createNetworkVisualization(centralArtist) {
         .attr("fill", "#777")
         .text(d => d);
 
-    // Create the force simulation
     const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links).id(d => d.id).distance(120))
         .force("charge", d3.forceManyBody().strength(-300))
         .force("center", d3.forceCenter(width / 2, height / 2));
 
-    // Group for links
     const linkGroup = svg.append("g").attr("class", "links");
-
-    // Create the links (lines)
     const link = linkGroup.selectAll("line")
         .data(links)
         .enter().append("line")
@@ -358,11 +364,9 @@ function createNetworkVisualization(centralArtist) {
         .attr("stroke", d => d.gradient ? `url(#${d.gradient})` : d.color || "#ccc")
         .attr("stroke-width", d => Math.max(1.5, Math.sqrt(d.value) * 2));
 
-    // Create tooltip to show common bands on links
     link.append("title")
         .text(d => `Common Bands: ${d.commonBands.join(", ")}`);
 
-    // Create the nodes (circles)
     const node = svg.append("g")
         .attr("class", "nodes")
         .selectAll("g")
@@ -374,16 +378,14 @@ function createNetworkVisualization(centralArtist) {
             .on("drag", dragged)
             .on("end", dragended));
 
-    // Add circles to the nodes
     node.append("circle")
         .attr("r", d => d.id === centralArtist.name ? 12 : 8)
-        .attr("fill", d => d.id === centralArtist.name ? "#00bcd4" : "#64b5f6") // Lighter blues
+        .attr("fill", d => d.id === centralArtist.name ? "#00bcd4" : "#64b5f6")
         .attr("stroke", "#fff")
         .attr("stroke-width", 1.5)
         .append("title")
         .text(d => `${d.id}\nBands: ${d.artist.bands.join(", ")}`);
 
-    // Add text to the nodes
     node.append("text")
         .attr("dx", 10)
         .attr("dy", ".35em")
@@ -394,14 +396,12 @@ function createNetworkVisualization(centralArtist) {
         .attr("font-weight", "400")
         .text(d => d.id);
 
-    // Add click interaction to nodes
     node.on("click", (event, d) => {
         if (d.id !== centralArtist.name) {
             displayArtistNetwork(d.artist);
         }
     });
 
-    // Function to update the simulation on each tick
     simulation.on("tick", () => {
         link
             .attr("x1", d => d.source.x)
@@ -411,7 +411,6 @@ function createNetworkVisualization(centralArtist) {
 
         node
             .attr("transform", d => {
-                // Limit the position within the SVG bounds with a margin
                 const margin = 40;
                 const x = Math.max(margin, Math.min(width - margin, d.x));
                 const y = Math.max(margin, Math.min(height - margin, d.y));
@@ -419,7 +418,6 @@ function createNetworkVisualization(centralArtist) {
             });
     });
 
-    // Drag functions
     function dragstarted(event, d) {
         if (!event.active) simulation.alphaTarget(0.3).restart();
         d.fx = d.x;
@@ -437,22 +435,31 @@ function createNetworkVisualization(centralArtist) {
         d.fy = null;
     }
 
-    // Save the current network for reference
     currentNetwork = { simulation, nodes, links };
 }
 
 function displayBandMembers(bandName) {
-    // Encontrar todos os artistas que pertencem à banda
+    console.log('displayBandMembers called for:', bandName, 'with artistsData:', artistsData.length); // Depuração
     const members = artistsData.filter(artist => artist.bands.includes(bandName));
-
-    // Atualizar a interface
     const bandMembersDiv = document.getElementById('band-members');
     const bandNameSpan = document.getElementById('band-name');
     const membersList = document.getElementById('band-members-list');
 
+    if (!bandMembersDiv || !bandNameSpan || !membersList) {
+        console.error("Band members DOM elements are missing");
+        return;
+    }
+
+    // Limpar interface
+    document.getElementById('initial-message').classList.add('hidden');
+    document.getElementById('no-results').classList.add('hidden');
+    document.getElementById('artist-info').classList.add('hidden');
+    d3.select("#network-visualization").selectAll("*").remove();
+
     bandNameSpan.textContent = bandName;
     membersList.innerHTML = '';
 
+    console.log('Members found:', members); // Depuração
     if (members.length > 0) {
         members.forEach(member => {
             const li = document.createElement('li');
@@ -464,20 +471,18 @@ function displayBandMembers(bandName) {
         });
         bandMembersDiv.classList.remove('hidden');
     } else {
-        bandMembersDiv.classList.add('hidden');
-        // Opcional: exibir uma mensagem de "nenhum membro encontrado"
+        membersList.innerHTML = '<li>No members found for this band.</li>';
+        bandMembersDiv.classList.remove('hidden');
     }
 }
 
-// Function to show message when no results are found
 function showNoResults() {
     document.getElementById('initial-message').classList.add('hidden');
     document.getElementById('artist-info').classList.add('hidden');
+    document.getElementById('band-members').classList.add('hidden');
     document.getElementById('no-results').classList.remove('hidden');
 
-    // Clear the visualization
     d3.select("#network-visualization").selectAll("*").remove();
 }
 
-// Initialize the application when the document is ready
 document.addEventListener('DOMContentLoaded', initializeVisualization);
