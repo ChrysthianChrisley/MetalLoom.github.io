@@ -259,9 +259,16 @@ function displayArtistNetwork(artist) {
 
 function getBandColors() {
     return [
-        "#a7c957", "#f2e9e4", "#ffc857", "#8ac926", "#e9c46a",
-        "#00adb5", "#9a8c98", "#f94144", "#577590", "#43aa8b",
-        "#90be6d", "#f8961e"
+        "#ff4d4d", // Red
+        "#4dff4d", // Lime Green
+        "#4d4dff", // Blue
+        "#ffeb3b", // Yellow
+        "#ff6f00", // Orange
+        "#9c27b0", // Purple
+        "#00bcd4", // Cyan
+        "#e91e63", // Pink
+        "#8bc34a", // Light Green
+        "#3f51b5"  // Indigo
     ];
 }
 
