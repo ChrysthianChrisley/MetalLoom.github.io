@@ -655,11 +655,12 @@ footer {
         font-size: 10px;
         padding: 6px 8px;
     }
-    
+
     #home-link {
         font-size: 0.9rem;
         padding: 0.4rem 0.8rem;
         margin-bottom: 0.5rem;
+        text-decoration: none;
     }
 }
 
@@ -755,6 +756,7 @@ footer {
     #home-link {
         font-size: 0.85rem;
         padding: 0.3rem 0.7rem;
+        text-decoration: none;
     }
 }
 
