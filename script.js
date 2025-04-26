@@ -173,7 +173,18 @@ function displayArtistNetwork(artist) {
     document.getElementById('artist-name').textContent = artist.name;
 
     const artistBands = document.getElementById('artist-bands');
-    artistBands.innerHTML = `<strong>Bands:</strong> ${artist.bands.join(', ')}`;
+    artistBands.innerHTML = '<strong>Bands:</strong> ';
+    // Criar spans clicáveis para cada banda
+    artist.bands.forEach((band, index) => {
+        const bandSpan = document.createElement('span');
+        bandSpan.textContent = band + (index < artist.bands.length - 1 ? ', ' : '');
+        bandSpan.className = 'band-link';
+        bandSpan.style.cursor = 'pointer';
+        bandSpan.style.color = '#4c51bf';
+        bandSpan.style.textDecoration = 'underline';
+        bandSpan.addEventListener('click', () => displayBandMembers(band));
+        artistBands.appendChild(bandSpan);
+    });
 
     const connectionsList = document.getElementById('artist-connections');
     connectionsList.innerHTML = '';
@@ -189,6 +200,10 @@ function displayArtistNetwork(artist) {
         });
         connectionsList.appendChild(li);
     });
+
+    // Reset band members section
+    document.getElementById('band-members').classList.add('hidden');
+    document.getElementById('band-members-list').innerHTML = '';
 
     // Create the network visualization
     createNetworkVisualization(artist);
@@ -310,7 +325,9 @@ function createNetworkVisualization(centralArtist) {
         .enter()
         .append("g")
         .attr("class", "legend-item")
-        .attr("transform", (d, i) => `translate(0, ${i * (legendSize + legendSpacing)})`);
+        .attr("transform", (d, i) => `translate(0, ${i * (legendSize + legendSpacing)})`)
+        .style("cursor", "pointer") // Tornar o item clicável
+        .on("click", (event, d) => displayBandMembers(d)); // Adicionar evento de clique
 
     legendItems.append("rect")
         .attr("width", legendSize)
@@ -422,6 +439,34 @@ function createNetworkVisualization(centralArtist) {
 
     // Save the current network for reference
     currentNetwork = { simulation, nodes, links };
+}
+
+function displayBandMembers(bandName) {
+    // Encontrar todos os artistas que pertencem à banda
+    const members = artistsData.filter(artist => artist.bands.includes(bandName));
+
+    // Atualizar a interface
+    const bandMembersDiv = document.getElementById('band-members');
+    const bandNameSpan = document.getElementById('band-name');
+    const membersList = document.getElementById('band-members-list');
+
+    bandNameSpan.textContent = bandName;
+    membersList.innerHTML = '';
+
+    if (members.length > 0) {
+        members.forEach(member => {
+            const li = document.createElement('li');
+            li.textContent = member.name;
+            li.addEventListener('click', () => {
+                displayArtistNetwork(member);
+            });
+            membersList.appendChild(li);
+        });
+        bandMembersDiv.classList.remove('hidden');
+    } else {
+        bandMembersDiv.classList.add('hidden');
+        // Opcional: exibir uma mensagem de "nenhum membro encontrado"
+    }
 }
 
 // Function to show message when no results are found

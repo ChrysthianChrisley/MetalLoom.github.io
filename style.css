@@ -314,3 +314,40 @@ footer {
         font-size: 1.5rem;
     }
 }
+
+#band-members {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 8px;
+    border: 1px solid #edf2f0;
+}
+
+#band-members h3 {
+    color: #4c51bf;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+#band-members-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+#band-members-list li {
+    padding: 0.5rem 0.75rem;
+    background: #e0f2f7;
+    border-radius: 6px;
+    color: #2d3748;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#band-members-list li:hover {
+    background: #b2ebf2;
+}
