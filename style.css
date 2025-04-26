@@ -5,10 +5,10 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.7;
-    background-color: #f4f7f6; /* Cor de fundo mais clara */
-    color: #333; /* Cor do texto mais escura */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    background-color: #f8fafc;
+    color: #1a202c;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,55 +17,62 @@ body {
 }
 
 .container {
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    padding: 40px;
-    max-width: 900px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+    max-width: 1200px;
     width: 95%;
+    margin: 2rem 0;
 }
 
 header {
     text-align: center;
-    margin-bottom: 40px;
+    padding: 2rem 0;
+    background: linear-gradient(135deg, #5a67d8 0%, #4c51bf 100%);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    color: #ffffff;
 }
 
 h1 {
-    color: #5a67d8; /* Cor primária */
-    font-weight: 700;
-    font-size: 2.5rem;
-    margin-bottom: 20px;
+    font-weight: 800;
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
 }
 
 .search-container {
     display: flex;
-    justify-content: center; /* Centraliza o container de busca */
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 500px; /* Largura máxima do container de busca */
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .autocomplete {
     position: relative;
-    width: 100%;
+    flex: 1;
 }
 
 #search-input {
-    padding: 14px 20px;
+    padding: 0.75rem 1rem;
     width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 8px 0 0 8px;
-    font-size: 16px;
-    background-color: #f9f9f9;
-    color: #333;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-    transition: border-color 0.3s ease;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a202c;
+    transition: all 0.3s ease;
 }
 
 #search-input:focus {
     outline: none;
-    border-color: #5a67d8;
-    box-shadow: 0 0 8px rgba(90, 103, 216, 0.2);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.2);
 }
 
 .autocomplete-list {
@@ -73,27 +80,27 @@ h1 {
     top: 100%;
     left: 0;
     right: 0;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
     list-style: none;
-    padding: 0;
-    margin-top: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 10;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .autocomplete-list li {
-    padding: 10px 15px;
+    padding: 0.75rem 1rem;
     cursor: pointer;
-    font-size: 16px;
-    color: #333;
-    transition: background-color 0.3s ease;
+    font-size: 0.95rem;
+    color: #1a202c;
+    transition: background-color 0.2s ease;
 }
 
 .autocomplete-list li:hover {
-    background-color: #f0f0f0;
+    background-color: #edf2f7;
 }
 
 .autocomplete-list.hidden {
@@ -101,66 +108,68 @@ h1 {
 }
 
 #search-button {
-    padding: 14px 25px;
-    background-color: #5a67d8;
-    color: #fff;
+    padding: 0.75rem;
+    background: #5a67d8;
+    color: #ffffff;
     border: none;
-    border-radius: 0 8px 8px 0;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.5rem;
+    transition: all 0.3s ease;
 }
 
 #search-button:hover {
-    background-color: #4c51bf;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background: #4c51bf;
+    transform: translateY(-1px);
 }
 
 main {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    padding: 20px;
-    margin-bottom: 30px;
+    padding: 1rem;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
 }
 
 #network-container {
-    height: 500px;
-    background-color: #f9f9f9;
-    border: 1px solid #eee;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    overflow: hidden;
+    background: #f7fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid #edf2f0;
+    height: 600px;
 }
 
 #artist-info {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 6px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    text-align: center;
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #edf2f0;
+    text-align: left;
 }
 
 #artist-info h2 {
     color: #5a67d8;
-    margin-bottom: 15px;
-    font-size: 2rem;
-    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+    font-weight: 700;
 }
 
 #artist-info h3 {
     color: #4c51bf;
-    margin: 20px 0 10px;
-    font-size: 1.3rem;
-    font-weight: 500;
+    margin: 1rem 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
 }
 
 #artist-bands {
-    margin-bottom: 15px;
-    font-size: 1.1rem;
-    color: #555;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #4a5568;
 }
 
 #artist-connections {
@@ -168,48 +177,49 @@ main {
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+    gap: 0.5rem;
 }
 
 #artist-connections li {
-    padding: 8px 12px;
-    background-color: #e0f2f7; /* Cor clara para as conexões */
+    padding: 0.5rem 0.75rem;
+    background: #e0f2f7;
     border-radius: 6px;
-    color: #333;
-    font-size: 0.9rem;
+    color: #2d3748;
+    font-size: 0.875rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 #artist-connections li:hover {
-    background-color: #b2ebf2;
+    background: #b2ebf2;
 }
 
-#initial-message, #no-results {
+#initial-message,
+#no-results {
+    grid-column: 1 / -1;
     text-align: center;
-    padding: 60px 20px;
-    font-size: 1.2rem;
-    color: #777;
-    background-color: #f9f9f9;
-    border-radius: 6px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 3rem;
+    font-size: 1.125rem;
+    color: #718096;
+    background: #f7fafc;
+    border-radius: 12px;
+    border: 1px solid #edf2f0;
 }
 
 footer {
     text-align: center;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-    color: #777;
-    font-size: 0.9rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid #e2e8f0;
+    color: #718096;
+    font-size: 0.875rem;
+    margin-top: 2rem;
 }
 
 .hidden {
     display: none;
 }
 
-/* Estilos para os nós e links da visualização */
+/* Node styles */
 .node circle {
     fill: #5a67d8;
     stroke: #fff;
@@ -231,18 +241,18 @@ footer {
     paint-order: fill;
 }
 
-.link {
-    stroke-opacity: 0.4;
-    stroke-linecap: round;
-    stroke: #ccc;
-}
-
 .node:hover circle {
     fill: #4c51bf;
     transform: scale(1.05);
 }
 
-/* Estilo para legenda de cores */
+/* Link styles - remove static color to allow D3.js to set colors dynamically */
+.link {
+    stroke-opacity: 0.4;
+    stroke-linecap: round;
+}
+
+/* Legend styles */
 .legend {
     background-color: rgba(255, 255, 255, 0.8);
     padding: 10px;
@@ -258,7 +268,7 @@ footer {
     paint-order: fill;
 }
 
-/* Estilo para tooltips */
+/* Tooltip styles */
 .tooltip {
     position: absolute;
     background-color: #fff;
@@ -272,36 +282,35 @@ footer {
     z-index: 100;
 }
 
-/* Ajustes para visualização responsiva */
+/* Responsive design */
 @media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
     h1 {
-        font-size: 2rem;
+        font-size: 1.75rem;
     }
 
-    #artist-info h2 {
-        font-size: 1.6rem;
+    .search-container {
+        flex-direction: column;
+        gap: 0.5rem;
     }
 
-    #artist-connections li {
-        flex: 0 0 100%;
-        max-width: 100%;
+    #search-button {
+        margin-left: 0;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
     }
 
     #network-container {
         height: 400px;
     }
 
-    .search-container {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    #search-input {
-        border-radius: 8px;
-        margin-bottom: 10px;
-    }
-
-    #search-button {
-        border-radius: 8px;
+    #artist-info h2 {
+        font-size: 1.5rem;
     }
 }

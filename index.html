@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MetalLoom</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -15,33 +15,35 @@
                     <input type="text" id="search-input" placeholder="Search Artist...">
                     <ul id="autocomplete-list" class="autocomplete-list hidden"></ul>
                 </div>
-                <button id="search-button">Search</button>
+                <button id="search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
             </div>
         </header>
 
         <main>
-            <div id="network-container">
-                <svg id="network-visualization" width="100%" height="600"></svg>
-            </div>
+            <div class="content-grid">
+                <div id="network-container">
+                    <svg id="network-visualization" width="100%" height="600"></svg>
+                </div>
 
-            <div id="artist-info" class="hidden">
-                <h2 id="artist-name"></h2>
-                <div id="artist-bands"></div>
-                <h3>Connections:</h3>
-                <ul id="artist-connections"></ul>
-            </div>
+                <div id="artist-info" class="hidden">
+                    <h2 id="artist-name"></h2>
+                    <div id="artist-bands"></div>
+                    <h3>Connections:</h3>
+                    <ul id="artist-connections"></ul>
+                </div>
 
-            <div id="initial-message">
-                
-            </div>
-
-            <div id="no-results" class="hidden">
-                
+                <div id="initial-message"></div>
+                <div id="no-results" class="hidden"></div>
             </div>
         </main>
 
         <footer>
-            <p></p>
+            <p>© 2025 MetalLoom. All rights reserved.</p>
         </footer>
     </div>
 

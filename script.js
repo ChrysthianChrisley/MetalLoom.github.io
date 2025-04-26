@@ -1,31 +1,31 @@
-// Estrutura para armazenar os dados dos artistas e suas conexões
+// Structure to store artist data and their connections
 let artistsData = [];
 let currentNetwork = null;
-let allArtistNames = []; // Array para armazenar todos os nomes de artistas
+let allArtistNames = []; // Array to store all artist names
 
-// Função para carregar os dados do arquivo artists.txt
+// Function to load data from the artists.txt file
 async function loadArtistsData() {
     try {
         const response = await fetch('artists.txt');
         if (!response.ok) {
-            throw new Error(`Erro ao carregar o arquivo: ${response.status}`);
+            throw new Error(`Error loading file: ${response.status}`);
         }
         const dataText = await response.text();
         artistsData = parseArtistsData(dataText);
-        allArtistNames = artistsData.map(artist => artist.name).sort(); // Carrega e ordena os nomes
+        allArtistNames = artistsData.map(artist => artist.name).sort(); // Load and sort names
     } catch (error) {
-        console.error("Não foi possível carregar os dados dos artistas:", error);
-        // Aqui você pode adicionar alguma lógica para lidar com o erro,
-        // como exibir uma mensagem para o usuário.
+        console.error("Could not load artist data:", error);
+        // Here you can add logic to handle the error,
+        // such as displaying a message to the user.
     }
 }
 
-// Função para fazer o parsing dos dados do arquivo de texto
+// Function to parse the data from the text file
 function parseArtistsData(dataText) {
     const lines = dataText.trim().split(';').filter(line => line.trim() !== '');
 
     const artists = [];
-    const bandsMap = new Map(); // Mapeia bandas para artistas que pertencem a elas
+    const bandsMap = new Map(); // Maps bands to the artists who belong to them
 
     lines.forEach(line => {
         const cleanLine = line.trim();
@@ -38,14 +38,14 @@ function parseArtistsData(dataText) {
         const bandsText = artistParts[1].trim();
         const bands = bandsText.split(',').map(band => band.trim());
 
-        // Adiciona o artista ao array de artistas
+        // Add the artist to the artists array
         const artist = {
             name: artistName,
             bands: bands
         };
         artists.push(artist);
 
-        // Mapeia cada banda para os artistas que fazem parte dela
+        // Map each band to the artists that are part of it
         bands.forEach(band => {
             if (!bandsMap.has(band)) {
                 bandsMap.set(band, []);
@@ -54,16 +54,16 @@ function parseArtistsData(dataText) {
         });
     });
 
-    // Adiciona as conexões com base nas bandas em comum
+    // Add connections based on common bands
     artists.forEach(artist => {
         artist.connections = [];
 
-        // Para cada banda do artista
+        // For each band of the artist
         artist.bands.forEach(band => {
-            // Pega todos os outros artistas dessa banda
+            // Get all other artists in this band
             const bandmates = bandsMap.get(band).filter(name => name !== artist.name);
 
-            // Adiciona conexões não duplicadas
+            // Add non-duplicate connections
             bandmates.forEach(bandmate => {
                 if (!artist.connections.some(conn => conn.name === bandmate)) {
                     const commonBands = artists
@@ -82,12 +82,12 @@ function parseArtistsData(dataText) {
     return artists;
 }
 
-// Função para inicializar a visualização
+// Function to initialize the visualization
 async function initializeVisualization() {
-    // Carregar e processar os dados do arquivo
+    // Load and process data from the file
     await loadArtistsData();
 
-    // Configurar manipuladores de eventos
+    // Set up event listeners
     const searchInput = document.getElementById('search-input');
     const autocompleteList = document.getElementById('autocomplete-list');
     const searchButton = document.getElementById('search-button');
@@ -145,42 +145,42 @@ function updateAutocompleteList(query, listElement) {
     }
 }
 
-// Função para buscar artista
+// Function to search for an artist
 function searchArtist(query) {
-    // Busca case-insensitive e parcial
+    // Case-insensitive and partial search
     const results = artistsData.filter(artist =>
         artist.name.toLowerCase() === query.toLowerCase()
     );
 
     if (results.length > 0) {
-        // Exibe o primeiro resultado da busca (deveria ser único com busca exata)
+        // Display the first search result (should be unique with exact match)
         displayArtistNetwork(results[0]);
     } else {
         showNoResults();
     }
 }
 
-// Função para exibir a rede de conexões de um artista
+// Function to display the network of connections for an artist
 function displayArtistNetwork(artist) {
-    // Esconde mensagem inicial e de "sem resultados"
+    // Hide initial and "no results" messages
     document.getElementById('initial-message').classList.add('hidden');
     document.getElementById('no-results').classList.add('hidden');
 
-    // Exibe informações do artista
+    // Display artist information
     const artistInfo = document.getElementById('artist-info');
     artistInfo.classList.remove('hidden');
 
     document.getElementById('artist-name').textContent = artist.name;
 
     const artistBands = document.getElementById('artist-bands');
-    artistBands.innerHTML = `<strong>Bandas:</strong> ${artist.bands.join(', ')}`;
+    artistBands.innerHTML = `<strong>Bands:</strong> ${artist.bands.join(', ')}`;
 
     const connectionsList = document.getElementById('artist-connections');
     connectionsList.innerHTML = '';
 
     artist.connections.forEach(connection => {
         const li = document.createElement('li');
-        li.textContent = `${connection.name} (Bandas em comum: ${connection.commonBands.join(', ')})`;
+        li.textContent = `${connection.name} (Common Bands: ${connection.commonBands.join(', ')})`;
         li.addEventListener('click', () => {
             const connectedArtist = artistsData.find(a => a.name === connection.name);
             if (connectedArtist) {
@@ -190,37 +190,46 @@ function displayArtistNetwork(artist) {
         connectionsList.appendChild(li);
     });
 
-    // Cria a visualização da rede
+    // Create the network visualization
     createNetworkVisualization(artist);
 }
 
-// Função para gerar cores para as bandas
+// Function to generate colors for the bands
 function getBandColors() {
-    // Lista de cores para as diferentes bandas
+    // List of colors for different bands (light and modern)
     return [
-        "#FF6B6B", "#4ECDC4", "#45B7D1", "#FFBE0B",
-        "#FB5607", "#8338EC", "#3A86FF", "#FF006E",
-        "#A5E6BA", "#FFCFD2", "#F8D49F", "#B5D99C"
+        "#a7c957", // Light Green
+        "#f2e9e4", // Off-White
+        "#ffc857", // Light Yellow
+        "#8ac926", // Bright Green
+        "#e9c46a", // Mustard Yellow
+        "#00adb5", // Teal
+        "#9a8c98", // Dusty Purple
+        "#f94144", // Coral
+        "#577590", // Slate Blue
+        "#43aa8b", // Sea Green
+        "#90be6d", // Lime Green
+        "#f8961e"  // Orange
     ];
 }
 
-// Função para criar a visualização da rede utilizando D3.js
+// Function to create the network visualization using D3.js
 function createNetworkVisualization(centralArtist) {
-    // Limpa a visualização anterior se existir
+    // Clear the previous visualization if it exists
     d3.select("#network-visualization").selectAll("*").remove();
 
     const svg = d3.select("#network-visualization");
     const width = svg.node().getBoundingClientRect().width;
     const height = svg.node().getBoundingClientRect().height;
 
-    // Cria os dados para o grafo
+    // Create the data for the graph
     const nodes = [
         { id: centralArtist.name, group: 1, artist: centralArtist }
     ];
 
     const links = [];
 
-    // Adiciona as conexões como nós e links
+    // Add connections as nodes and links
     centralArtist.connections.forEach(connection => {
         const connectedArtist = artistsData.find(a => a.name === connection.name);
 
@@ -238,7 +247,7 @@ function createNetworkVisualization(centralArtist) {
         });
     });
 
-    // Coletando todas as bandas únicas para colorir as conexões
+    // Collecting all unique bands to color the connections
     const allBands = new Set();
     links.forEach(link => {
         link.commonBands.forEach(band => allBands.add(band));
@@ -251,14 +260,14 @@ function createNetworkVisualization(centralArtist) {
         bandColorMap[band] = bandColors[i % bandColors.length];
     });
 
-    // Definir gradientes para links com várias bandas em comum
+    // Define gradients for links with multiple common bands
     const defs = svg.append("defs");
 
     links.forEach((link, i) => {
-        // Criar ID único para o gradiente
+        // Create a unique ID for the gradient
         const gradientId = `link-gradient-${i}`;
 
-        // Se houver mais de uma banda em comum, criar gradiente
+        // If there is more than one common band, create a gradient
         if (link.commonBands.length > 1) {
             const gradient = defs.append("linearGradient")
                 .attr("id", gradientId)
@@ -268,27 +277,27 @@ function createNetworkVisualization(centralArtist) {
                 .attr("x2", "100%")
                 .attr("y2", 0);
 
-            // Adicionar stops para cada banda
+            // Add stops for each band
             link.commonBands.forEach((band, j) => {
                 gradient.append("stop")
                     .attr("offset", `${j * (100 / (link.commonBands.length - 1))}%`)
                     .attr("stop-color", bandColorMap[band]);
             });
 
-            // Especificar que este link usa o gradiente
+            // Specify that this link uses the gradient
             link.gradient = gradientId;
         } else if (link.commonBands.length === 1) {
-            // Se houver apenas uma banda, usar sua cor diretamente
+            // If there is only one band, use its color directly
             link.color = bandColorMap[link.commonBands[0]];
         } else {
-            // Sem bandas em comum (não deve acontecer)
-            link.color = "#999";
+            // No common bands (should not happen)
+            link.color = "#ddd"; // Light grey
         }
     });
 
-    // Adicionar legenda de cores
-    const legendSize = 15;
-    const legendSpacing = 5;
+    // Add color legend
+    const legendSize = 12;
+    const legendSpacing = 4;
     const legendX = 20;
     const legendY = 20;
 
@@ -311,32 +320,32 @@ function createNetworkVisualization(centralArtist) {
     legendItems.append("text")
         .attr("x", legendSize + legendSpacing)
         .attr("y", legendSize - 2)
-        .attr("font-size", "12px")
-        .attr("fill", "#555")
+        .attr("font-size", "10px")
+        .attr("fill", "#777")
         .text(d => d);
 
-    // Cria a simulação da força
+    // Create the force simulation
     const simulation = d3.forceSimulation(nodes)
-        .force("link", d3.forceLink(links).id(d => d.id).distance(150))
-        .force("charge", d3.forceManyBody().strength(-400))
+        .force("link", d3.forceLink(links).id(d => d.id).distance(120))
+        .force("charge", d3.forceManyBody().strength(-300))
         .force("center", d3.forceCenter(width / 2, height / 2));
 
-    // Grupo para links
+    // Group for links
     const linkGroup = svg.append("g").attr("class", "links");
 
-    // Cria os links (linhas)
+    // Create the links (lines)
     const link = linkGroup.selectAll("line")
         .data(links)
         .enter().append("line")
         .attr("class", "link")
         .attr("stroke", d => d.gradient ? `url(#${d.gradient})` : d.color || "#ccc")
-        .attr("stroke-width", d => Math.max(2, Math.sqrt(d.value) * 3));
+        .attr("stroke-width", d => Math.max(1.5, Math.sqrt(d.value) * 2));
 
-    // Cria tooltip para mostrar bandas em comum nos links
+    // Create tooltip to show common bands on links
     link.append("title")
-        .text(d => `Bandas em comum: ${d.commonBands.join(", ")}`);
+        .text(d => `Common Bands: ${d.commonBands.join(", ")}`);
 
-    // Cria os nós (círculos)
+    // Create the nodes (circles)
     const node = svg.append("g")
         .attr("class", "nodes")
         .selectAll("g")
@@ -348,34 +357,34 @@ function createNetworkVisualization(centralArtist) {
             .on("drag", dragged)
             .on("end", dragended));
 
-    // Adiciona círculos aos nós
+    // Add circles to the nodes
     node.append("circle")
-        .attr("r", d => d.id === centralArtist.name ? 15 : 10)
-        .attr("fill", d => d.id === centralArtist.name ? "#00bcd4" : "#5a67d8")
+        .attr("r", d => d.id === centralArtist.name ? 12 : 8)
+        .attr("fill", d => d.id === centralArtist.name ? "#00bcd4" : "#64b5f6") // Lighter blues
         .attr("stroke", "#fff")
         .attr("stroke-width", 1.5)
         .append("title")
-        .text(d => `${d.id}\nBandas: ${d.artist.bands.join(", ")}`);
+        .text(d => `${d.id}\nBands: ${d.artist.bands.join(", ")}`);
 
-    // Adiciona texto aos nós
+    // Add text to the nodes
     node.append("text")
-        .attr("dx", 15)
+        .attr("dx", 10)
         .attr("dy", ".35em")
-        .attr("fill", "#333")
+        .attr("fill", "#555")
         .attr("stroke", "none")
         .attr("paint-order", "fill")
-        .attr("font-size", "12px")
-        .attr("font-weight", "500")
+        .attr("font-size", "10px")
+        .attr("font-weight", "400")
         .text(d => d.id);
 
-    // Adiciona interação de clique nos nós
+    // Add click interaction to nodes
     node.on("click", (event, d) => {
         if (d.id !== centralArtist.name) {
             displayArtistNetwork(d.artist);
         }
     });
 
-    // Função de atualização da simulação
+    // Function to update the simulation on each tick
     simulation.on("tick", () => {
         link
             .attr("x1", d => d.source.x)
@@ -385,15 +394,15 @@ function createNetworkVisualization(centralArtist) {
 
         node
             .attr("transform", d => {
-                // Limitar a posição dentro dos limites do SVG com margem
-                const margin = 50;
+                // Limit the position within the SVG bounds with a margin
+                const margin = 40;
                 const x = Math.max(margin, Math.min(width - margin, d.x));
                 const y = Math.max(margin, Math.min(height - margin, d.y));
                 return `translate(${x},${y})`;
             });
     });
 
-    // Funções para o arrastar
+    // Drag functions
     function dragstarted(event, d) {
         if (!event.active) simulation.alphaTarget(0.3).restart();
         d.fx = d.x;
@@ -411,19 +420,19 @@ function createNetworkVisualization(centralArtist) {
         d.fy = null;
     }
 
-    // Salva a rede atual para referência
+    // Save the current network for reference
     currentNetwork = { simulation, nodes, links };
 }
 
-// Função para mostrar mensagem quando nenhum resultado é encontrado
+// Function to show message when no results are found
 function showNoResults() {
     document.getElementById('initial-message').classList.add('hidden');
     document.getElementById('artist-info').classList.add('hidden');
     document.getElementById('no-results').classList.remove('hidden');
 
-    // Limpa a visualização
+    // Clear the visualization
     d3.select("#network-visualization").selectAll("*").remove();
 }
 
-// Inicializa a aplicação quando o documento estiver pronto
+// Initialize the application when the document is ready
 document.addEventListener('DOMContentLoaded', initializeVisualization);
