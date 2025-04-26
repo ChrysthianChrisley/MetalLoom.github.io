@@ -2,6 +2,9 @@
 
 MetalLoom is an interactive web application that visualizes the network of metal artists and their band connections. Users can search for an artist, view their associated bands, explore connections with other artists based on shared bands, and click on bands to see their members. The application uses D3.js for network visualization and provides an intuitive interface for exploring the metal music scene.
 
+
+[View Image](https://i.ibb.co/1tRV455Z/Metal-Loom.jpg)
+
 ## Features
 
 - **Artist Search**: Search for metal artists with autocomplete suggestions.
