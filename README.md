@@ -12,7 +12,7 @@ MetalLoom is an interactive web application that visualizes the network of metal
 
 ## Demo
 
-[Live Demo](https://chrysthianchrisley.github.io/MetalLoom.github.io/)]
+[Live Demo](https://chrysthianchrisley.github.io/MetalLoom.github.io/)
 
 ## Installation
 
