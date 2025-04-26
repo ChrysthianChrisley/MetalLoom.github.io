@@ -112,7 +112,7 @@ def parseUrl(band_name, url):
                     
         if all_members_data:
             
-            with open('artists.txt', 'a', encoding='utf-8') as f:
+            with open('../artists.txt', 'a', encoding='utf-8') as f:
                 for member in all_members_data:
                     # 1. Garantir que usamos o nome correto da banda principal
                     main_band_name = banda_principal  # "Silencer" no exemplo
@@ -126,7 +126,7 @@ def parseUrl(band_name, url):
                         # Evitar duplicatas e strings vazias (comparação case-insensitive)
                         if band_name and band_name.lower() != main_band_name.lower():
                             combined_bands.append(band_name)
-, ;                    
+        
                     # 4. Filtrar itens vazios e juntar com vírgula
                     filtered_bands = [b for b in combined_bands if b]  # Remove strings vazias
                     bands_str = ", ".join(filtered_bands)
