@@ -657,10 +657,14 @@ footer {
     }
 
     #home-link {
-        font-size: 0.9rem;
-        padding: 0.4rem 0.8rem;
-        margin-bottom: 0.5rem;
-        text-decoration: none;
+        font-size: 1.75rem;
+        padding: 0;
+        margin-bottom: 0;
+        text-decoration: none !important;
+    }
+    
+    #home-link:hover {
+        text-decoration: none !important;
     }
 }
 
@@ -754,9 +758,13 @@ footer {
     }
 
     #home-link {
-        font-size: 0.85rem;
-        padding: 0.3rem 0.7rem;
-        text-decoration: none;
+        font-size: 1.5rem;
+        padding: 0;
+        text-decoration: none !important;
+    }
+    
+    #home-link:hover {
+        text-decoration: none !important;
     }
 }
 
@@ -764,24 +772,27 @@ footer {
 #home-link {
     display: inline-block;
     color: #ffffff;
-    font-size: 2rem;
-    font-weight: 600;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
+    font-size: 2.25rem;
+    font-weight: 800;
+    text-decoration: none !important;
+    padding: 0;
+    border-radius: 0;
     transition: background-color 0.3s ease, transform 0.3s ease;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
 }
 
 #home-link:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
+    background: transparent;
+    transform: none;
+    text-decoration: none !important;
 }
 
 [data-theme="dark"] #home-link {
     color: #e2e8f0;
+    text-decoration: none !important;
 }
 
 [data-theme="dark"] #home-link:hover {
-    background: rgba(160, 174, 192, 0.2);
+    background: transparent;
+    text-decoration: none !important;
 }
